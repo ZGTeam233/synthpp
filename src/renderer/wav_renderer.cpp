@@ -20,14 +20,18 @@ namespace synthpp {
         }
 
         int64_t total_ms = score.total_duration_ms();
+        std::cout << "DEBUG: total_ms = " << total_ms << std::endl;
+
         if (total_ms == 0) {
             std::cerr << "WavRenderer: Total duration is zero.\n";
             return false;
         }
 
         // 计算总采样数
-        int64_t total_samples = total_ms * sample_rate / 1000;
-        std::vector<float> buffer(total_samples, 0.0f);
+        int64_t total_samples = (total_ms + 1) * sample_rate / 1000 + 1; // 多留一点余量
+        std::cout << "DEBUG: total_samples = " << total_samples << std::endl;
+
+        std::vector<float> buffer(total_samples, 0.0);
 
         SynthEngine engine(sample_rate);
 
@@ -40,19 +44,28 @@ namespace synthpp {
         const int block_samples = 256;
         std::vector<float> block(block_samples);
 
-        int64_t current_ms = 0;
+        double current_ms = 0;
         int64_t samples_rendered = 0;
         while (samples_rendered < total_samples) {
-            int samples_to_render = std::min<int64_t>(block_samples, total_samples - samples_rendered);
-            engine.render_audio(block.data(), samples_to_render, current_ms);
-            // 复制数据
+            int samples_to_render = std::min(block_samples, static_cast<int>(total_samples - samples_rendered));
+            engine.render_audio(block.data(), samples_to_render, static_cast<int64_t>(current_ms));
+
+            // 关键修复：复制到 buffer
             std::copy(block.begin(), block.begin() + samples_to_render,
                       buffer.begin() + samples_rendered);
+
             samples_rendered += samples_to_render;
-            current_ms += static_cast<int64_t>(samples_to_render * 1000.0 / sample_rate);
+            current_ms += static_cast<double>(samples_to_render) * 1000.0 / sample_rate;
         }
 
         write_wav(filename, buffer, sample_rate);
+
+        double max_amp = 0.0;
+        for (double s : buffer) {
+            if (std::abs(s) > max_amp) max_amp = std::abs(s);
+        }
+        std::cout << "Max amplitude: " << max_amp << std::endl;
+
         return true;
     }
 

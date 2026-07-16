@@ -5,19 +5,12 @@
 
 #include "synth_engine.h"
 #include <algorithm>
+#include <iostream>
 
 namespace synthpp {
     SynthEngine::SynthEngine(double sample_rate) : sample_rate_(sample_rate) {}
 
     void SynthEngine::add_note(double frequency, int64_t start_ms, int duration_ms) {
-        // 查找一个空闲的 Voice（即当前不活跃的）
-        for (auto& v : voices_) {
-            if (!v.is_active(start_ms)) {
-                v.start(frequency, start_ms, duration_ms);
-                return;
-            }
-        }
-        // 若没有空闲，新建
         Voice v;
         v.start(frequency, start_ms, duration_ms);
         voices_.push_back(v);
@@ -31,25 +24,11 @@ namespace synthpp {
     }
 
     void SynthEngine::render_audio(float* output, int num_samples, int64_t block_start_ms) {
-        // 清空输出
         std::fill(output, output + num_samples, 0.0f);
 
-        // 如果没有活跃 Voice，直接返回（全零）
-        bool has_active = false;
-        for (const auto& v : voices_) {
-            if (v.is_active(block_start_ms) || v.is_active(block_start_ms + num_samples * 1000 / sample_rate_)) {
-                has_active = true;
-                break;
-            }
-        }
-        if (!has_active) {
-            return;
-        }
-
-        // 对每个采样累加活跃 Voice 的贡献
+        // 不要提前返回！直接遍历所有采样
         for (int i = 0; i < num_samples; ++i) {
-            // 计算当前采样对应的精确时间（毫秒）
-            int64_t sample_time_ms = block_start_ms + static_cast<int64_t>(i * 1000.0 / sample_rate_);
+            int64_t sample_time_ms = static_cast<int64_t>(block_start_ms + static_cast<double>(i) * 1000.0 / sample_rate_);
             float mixed = 0.0f;
             int active_count = 0;
             for (auto& v : voices_) {
@@ -59,8 +38,7 @@ namespace synthpp {
                 }
             }
             if (active_count > 0) {
-                // 归一化防止削波
-                output[i] = mixed / active_count;
+                output[i] = mixed / static_cast<float>(active_count);
             }
         }
     }

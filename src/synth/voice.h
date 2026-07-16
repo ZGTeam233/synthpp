@@ -12,7 +12,7 @@ namespace synthpp {
     public:
         Voice() = default;
 
-        void start(double frequency, int64_t start_time_ms, int duration_ms);
+        void start(double frequency, int64_t start_time_ms, int64_t duration_ms);
         void stop();
         bool is_active(int64_t current_time_ms) const;
         float render_sample(double sample_rate, int64_t current_time_ms);

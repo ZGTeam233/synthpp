@@ -16,12 +16,14 @@ int main() {
     int64_t totalMs = score.total_duration_ms();
     std::cout << "Total duration: " << totalMs << " ms" << std::endl;
 
+    /*
     for (const auto& note : score.notes()) {
         std::cout << "freq=" << note.frequency
                   << " start=" << note.start_ms
                   << " dur=" << note.duration_ms
                   << " end=" << note.start_ms + note.duration_ms << std::endl;
     }
+    */
 
     if (synthpp::WavRenderer::render_to_file(score, "output.wav")) {
         std::cout << "Rendering successful. Play output.wav" << std::endl;
@@ -29,5 +31,6 @@ int main() {
         std::cerr << "Rendering failed." << std::endl;
         return 1;
     }
+    std::cout << "Last note end: " << score.notes().back().start_ms + score.notes().back().duration_ms << std::endl;
     return 0;
 }
