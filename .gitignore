@@ -1,0 +1,63 @@
+# 编译输出
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
+*.app
+
+# 调试符号
+*.pdb
+*.ilk
+*.gcno
+*.gcda
+
+# CMake 构建目录
+build/
+build-*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CMakeUserPresets.json
+*.cmake
+!CMakeLists.txt
+!*.cmake.in
+
+# 可执行文件（你生成的目标）
+SynthPP
+SynthPP.exe
+
+# 依赖管理（如 vcpkg、conan）
+vcpkg_installed/
+conaninfo.txt
+conanbuildinfo.*
+conan.lock
+
+# IDE 配置
+.vscode/
+.idea/
+*.code-workspace
+*.suo
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# 临时文件
+*~
+*.swp
+*.swo
+*.tmp
+*.log
+
+# 系统文件
+Thumbs.db
+.DS_Store
+
+# 用户本地配置（可选）
+.env
+.local
