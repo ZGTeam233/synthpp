@@ -6,7 +6,7 @@
 #include "twinkle_star.h"
 
 namespace synthpp {
-    void TwinkleStar::fillScore(Score& score) const override {
+    void TwinkleStar::fillScore(Score& score) const {
         // 小星星前两句（C C G G A A G, F F E E D D C）
         // 每个音符持续 400ms
         const int dur = 400;
