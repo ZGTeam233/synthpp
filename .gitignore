@@ -1,4 +1,9 @@
-# 编译输出
+# ========================================================
+# 通用忽略文件（融合 Python + C/C++ 项目）
+# 适用于 Python MIDI 解析器以及 C/C++ 相关工具
+# ========================================================
+
+# --------------------- 编译输出 --------------------------
 *.o
 *.obj
 *.exe
@@ -8,13 +13,14 @@
 *.out
 *.app
 
-# 调试符号
+# --------------------- 调试符号 --------------------------
 *.pdb
 *.ilk
 *.gcno
 *.gcda
 
-# CMake 构建目录
+# --------------------- 构建目录 --------------------------
+# CMake
 build/
 build-*/
 CMakeCache.txt
@@ -26,17 +32,48 @@ CMakeUserPresets.json
 !CMakeLists.txt
 !*.cmake.in
 
-# 可执行文件（你生成的目标）
+# Python 打包与构建
+dist/
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+
+# --------------------- 可执行文件（特定项目） ------------
 synthpp
 synthpp.exe
 
-# 依赖管理（如 vcpkg、conan）
+# --------------------- 依赖管理 --------------------------
+# vcpkg / Conan
 vcpkg_installed/
 conaninfo.txt
 conanbuildinfo.*
 conan.lock
 
-# IDE 配置
+# Python 依赖与虚拟环境
+pip-log.txt
+pip-delete-this-directory.txt
+.env                           # 环境变量文件（也归入用户配置）
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# --------------------- Python 缓存与运行时文件 -----------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --------------------- IDE 配置 --------------------------
 .vscode/
 .idea/
 *.code-workspace
@@ -47,17 +84,18 @@ conan.lock
 *.vcxproj.filters
 *.vcxproj.user
 
-# 临时文件
+# --------------------- 临时文件 --------------------------
 *~
 *.swp
 *.swo
 *.tmp
 *.log
 
-# 系统文件
+# --------------------- 系统文件 --------------------------
 Thumbs.db
 .DS_Store
 
-# 用户本地配置（可选）
-.env
+# --------------------- 本地用户配置（可选） --------------
 .local
+.idea/
+# （.env 已在上方加入）
