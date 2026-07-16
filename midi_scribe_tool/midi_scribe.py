@@ -3,7 +3,7 @@
 # Copyright(c) 2026 ZGTeam233.
 #
 
-from midi_note_parser import *
+from note_parser import *
 from midi_fixer import *
 
 if __name__ == "__main__":

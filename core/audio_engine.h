@@ -3,9 +3,7 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#ifndef SYNTHPP_AUDIO_ENGINE_H
-#define SYNTHPP_AUDIO_ENGINE_H
-
+#pragma once
 #include <portaudio.h>
 #include <cmath>
 #include <iostream>

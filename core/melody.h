@@ -3,9 +3,7 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#ifndef SYNTHPP_MELODY_H
-#define SYNTHPP_MELODY_H
-
+#pragma once
 #include <vector>
 #include "score.h"
 
@@ -69,5 +67,3 @@ namespace synthpp {
     };
 
 } // namespace synthpp
-
-#endif // SYNTHPP_MELODY_H

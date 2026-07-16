@@ -3,13 +3,11 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#ifndef SYNTHPP_PLAYER_H
-#define SYNTHPP_PLAYER_H
-
+#pragma once
 #include <thread>
 #include <chrono>
-#include "audio_engine.h"
-#include "score.h"
+#include "../core/audio_engine.h"
+#include "../core/score.h"
 
 namespace synthpp {
     class Player {
@@ -22,5 +20,3 @@ namespace synthpp {
         void play();
     };
 } // synthpp
-
-#endif // SYNTHPP_PLAYER_H

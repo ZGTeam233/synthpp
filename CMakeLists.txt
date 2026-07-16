@@ -29,19 +29,21 @@ include_directories(include)
 
 # 添加可执行文件
 add_executable(synthpp main.cpp
-        src/score.h
-        src/score.cpp
-        src/audio_engine.h
-        src/audio_engine.cpp
-        src/player.h
-        src/player.cpp
-        src/melody.h
-        src/twinkle_star.h
-        src/melody.cpp
-        src/twinkle_star.cpp
-        src/json.hpp
-        src/json_melody.cpp
-        src/json_melody.h)
+        core/score.h
+        core/score.cpp
+        core/audio_engine.h
+        core/audio_engine.cpp
+        player/player.h
+        player/player.cpp
+        core/melody.h
+        melodies/twinkle_star.h
+        core/melody.cpp
+        melodies/twinkle_star.cpp
+        third_party/json.hpp
+        melodies/json_melody.cpp
+        melodies/json_melody.h
+        renderer/renderer.cpp
+        renderer/renderer.h)
 
 # 链接 PortAudio
 target_link_libraries(synthpp portaudio)

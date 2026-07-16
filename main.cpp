@@ -3,9 +3,12 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#include "src/json_melody.h"
-#include "src/score.h"
+#include "melodies/json_melody.h"
+#include "core/score.h"
 #include <iostream>
+#include "player/player.h"
+#include "core/audio_engine.h"
+#include "renderer/renderer.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -16,26 +19,21 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8); // 可选：同时设置输入代码页
 #endif // _WIN32
+
     try {
-        // 1. 从 JSON 加载旋律
+        // 1. 加载 JSON
         synthpp::JsonMelody melody("out.json");
 
-        // 2. 创建 Score 并填充
+        // 2. 创建 Score（已修改为支持绝对时间和滑音）
         synthpp::Score score;
-        melody.fillScore(score);
+        melody.fillScore(score);  // 这个函数需要改成往新 Score 里填 TimedNote
 
-        // 3. 现在 score 里存储了所有音符（频率+时长），可按顺序播放
-        // 例如：遍历播放
-        score.reset();
-        while (score.hasMore()) {
-            auto note = score.nextNote();
-            // 输出或播放 note.frequency, note.durationMs
-            std::cout << "频率: " << note.frequency << " Hz, 时长: " << note.durationMs << " ms\n";
-        }
+        // 3. 离线渲染成 WAV
+        renderScoreToWav(score, "output.wav", 44100);
 
+        std::cout << "渲染完成！用播放器打开 output.wav 听效果。\n";
     } catch (const std::exception& e) {
         std::cerr << "错误: " << e.what() << "\n";
-        return 1;
     }
     return 0;
 }

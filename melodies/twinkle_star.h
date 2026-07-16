@@ -3,10 +3,8 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#ifndef SYNTHPP_TWINKLE_STAR_H
-#define SYNTHPP_TWINKLE_STAR_H
-
-#include "melody.h"
+#pragma once
+#include "../core/melody.h"
 
 namespace synthpp {
 
@@ -16,5 +14,3 @@ namespace synthpp {
     };
 
 } // namespace synthpp
-
-#endif // SYNTHPP_TWINKLE_STAR_H
