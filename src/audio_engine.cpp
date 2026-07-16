@@ -3,7 +3,7 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#include "../audio_engine.h"
+#include "audio_engine.h"
 #include <numbers>
 
 namespace synthpp {

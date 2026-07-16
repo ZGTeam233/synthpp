@@ -19,7 +19,8 @@ add_executable(synthpp src/main.cpp
         src/melody.h
         src/twinkle_star.h
         src/melody.cpp
-        src/twinkle_star.cpp)
+        src/twinkle_star.cpp
+        src/json.hpp)
 
 # ---- 链接 PortAudio（通过 pkg-config 提供的变量） ----
 target_include_directories(synthpp PRIVATE ${PORTAUDIO_INCLUDE_DIRS})

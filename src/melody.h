@@ -7,7 +7,7 @@
 #define SYNTHPP_MELODY_H
 
 #include <vector>
-#include "../score.h"
+#include "score.h"
 
 namespace synthpp {
 

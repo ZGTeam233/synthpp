@@ -9,7 +9,7 @@
 #include <thread>
 #include <chrono>
 #include "audio_engine.h"
-#include "../score.h"
+#include "score.h"
 
 namespace synthpp {
     class Player {

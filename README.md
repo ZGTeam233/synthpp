@@ -8,7 +8,7 @@
 
 ```bash
 pacman -S mingw-w64-ucrt-x86_64-portaudio
-pip install pretty_midi -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install pretty_midi mido -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 这里只演示 Windows MSYS2 UCRT64 环境

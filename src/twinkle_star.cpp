@@ -3,7 +3,7 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#include "../twinkle_star.h"
+#include "twinkle_star.h"
 
 namespace synthpp {
     void TwinkleStar::fillScore(Score& score) const {

@@ -3,7 +3,7 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#include "../score.h"
+#include "score.h"
 #include <vector>
 
 namespace synthpp {

@@ -6,6 +6,7 @@
 import pretty_midi
 from pathlib import Path
 from typing import Optional, TextIO
+import json
 
 class MidiNoteParser:
     """
@@ -92,3 +93,33 @@ class MidiNoteParser:
         """
         self.parse(skip_drums=skip_drums)
         self.write_to_txt(output_path, format_str)
+
+    def write_to_json(self, output_path: str, indent: int = 4, include_note_name: bool = False) -> None:
+        """
+        将解析出的音符信息写入 JSON 文件。
+
+        Args:
+            output_path (str): 输出 JSON 文件路径。
+            indent (int): JSON 缩进空格数，默认 4（美化输出）。
+            include_note_name (bool): 是否在每条记录中添加音符名称（如 'C5'），默认 False。
+
+        Raises:
+            RuntimeError: 如果尚未调用 parse() 或解析结果为空。
+        """
+        if not self.notes_info:
+            raise RuntimeError("没有音符数据，请先调用 parse() 方法。")
+
+        # 如果需要添加音符名称，复制数据并补充
+        data_to_export = self.notes_info.copy()
+        if include_note_name:
+            for note in data_to_export:
+                note['note_name'] = pretty_midi.note_number_to_name(note['pitch'])
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(data_to_export, f, indent=indent, ensure_ascii=False)
+
+        print(f"成功写入 {len(data_to_export)} 条音符信息到: {output_path}")
+
+    def parse_and_save_json(self, output_path: str, skip_drums: bool = True, indent: int = 4, include_note_name: bool = False) -> None:
+        self.parse(skip_drums=skip_drums)
+        self.write_to_json(output_path, indent=indent, include_note_name=include_note_name)

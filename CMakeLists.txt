@@ -28,7 +28,7 @@ message(STATUS "Imported targets: ${_targets}")
 include_directories(include)
 
 # 添加可执行文件
-add_executable(synthpp src/main.cpp
+add_executable(synthpp main.cpp
         src/score.h
         src/score.cpp
         src/audio_engine.h
@@ -38,7 +38,10 @@ add_executable(synthpp src/main.cpp
         src/melody.h
         src/twinkle_star.h
         src/melody.cpp
-        src/twinkle_star.cpp)
+        src/twinkle_star.cpp
+        src/json.hpp
+        src/json_melody.cpp
+        src/json_melody.h)
 
 # 链接 PortAudio
 target_link_libraries(synthpp portaudio)
