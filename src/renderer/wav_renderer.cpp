@@ -45,11 +45,11 @@ namespace synthpp {
         while (samples_rendered < total_samples) {
             int samples_to_render = std::min<int64_t>(block_samples, total_samples - samples_rendered);
             engine.render_audio(block.data(), samples_to_render, current_ms);
-            // 复制到 buffer
+            // 复制数据
             std::copy(block.begin(), block.begin() + samples_to_render,
                       buffer.begin() + samples_rendered);
             samples_rendered += samples_to_render;
-            current_ms += samples_to_render * 1000 / sample_rate;
+            current_ms += static_cast<int64_t>(samples_to_render * 1000.0 / sample_rate);
         }
 
         write_wav(filename, buffer, sample_rate);
@@ -57,31 +57,32 @@ namespace synthpp {
     }
 
     void WavRenderer::write_wav(const std::string& filename,
-                                const std::vector<float>& samples,
-                                int sample_rate) {
+                            const std::vector<float>& samples,
+                            int sample_rate) {
         std::ofstream file(filename, std::ios::binary);
         if (!file) {
             std::cerr << "Failed to create WAV file: " << filename << std::endl;
             return;
         }
 
-        // WAV 头（44 字节，PCM 格式）
+        // 修正：实际数据量 = 采样数 × 通道数 × 每个样本字节数
         int32_t num_samples = static_cast<int32_t>(samples.size());
-        int32_t data_size = num_samples * sizeof(float); // 32-bit float
-        int32_t chunk_size = 36 + data_size;
-        int16_t audio_format = 3;   // IEEE Float
-        int16_t num_channels = 2;   // Stereo
+        int16_t num_channels = 2;
         int32_t sample_rate_32 = sample_rate;
-        int32_t byte_rate = sample_rate * num_channels * sizeof(float);
-        int16_t block_align = num_channels * sizeof(float);
         int16_t bits_per_sample = 32;
+        int16_t block_align = num_channels * (bits_per_sample / 8); // 4 字节/样本 × 2 通道 = 8
+        int32_t byte_rate = sample_rate * block_align;  // 每秒字节数
+        int32_t data_size = num_samples * block_align;  // 数据区总字节数
+        int32_t chunk_size = 36 + data_size;
 
+        // 写入 RIFF 头
         file.write("RIFF", 4);
         file.write(reinterpret_cast<const char*>(&chunk_size), 4);
         file.write("WAVE", 4);
         file.write("fmt ", 4);
         int32_t subchunk1_size = 16;
         file.write(reinterpret_cast<const char*>(&subchunk1_size), 4);
+        int16_t audio_format = 3; // IEEE Float
         file.write(reinterpret_cast<const char*>(&audio_format), 2);
         file.write(reinterpret_cast<const char*>(&num_channels), 2);
         file.write(reinterpret_cast<const char*>(&sample_rate_32), 4);
@@ -89,15 +90,15 @@ namespace synthpp {
         file.write(reinterpret_cast<const char*>(&block_align), 2);
         file.write(reinterpret_cast<const char*>(&bits_per_sample), 2);
         file.write("data", 4);
-        int32_t data_size_32 = data_size;
-        file.write(reinterpret_cast<const char*>(&data_size_32), 4);
+        file.write(reinterpret_cast<const char*>(&data_size), 4);
 
         // 写入音频数据（交错双声道）
         for (float s : samples) {
-            file.write(reinterpret_cast<const char*>(&s), sizeof(float)); // 左
-            file.write(reinterpret_cast<const char*>(&s), sizeof(float)); // 右
+            file.write(reinterpret_cast<const char*>(&s), sizeof(float));
+            file.write(reinterpret_cast<const char*>(&s), sizeof(float));
         }
 
-        std::cout << "WAV file written: " << filename << " (" << num_samples << " samples)" << std::endl;
+        std::cout << "WAV file written: " << filename << " ("
+                  << num_samples << " samples, " << data_size << " bytes)" << std::endl;
     }
 } // synthpp
