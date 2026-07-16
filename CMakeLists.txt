@@ -41,7 +41,9 @@ add_executable(synthpp main.cpp
         src/renderer/wav_renderer.cpp
         src/renderer/wav_renderer.h
         src/utils/midi_utils.h
-        src/melodies/twinkle_star.h)
+        src/melodies/twinkle_star.h
+        src/melodies/json_melody.cpp
+        src/melodies/json_melody.h)
 
 # 链接 PortAudio
 target_link_libraries(synthpp portaudio)
