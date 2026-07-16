@@ -37,7 +37,10 @@ add_executable(synthpp main.cpp
         src/synth/voice.cpp
         src/synth/voice.h
         src/synth/synth_engine.cpp
-        src/synth/synth_engine.h)
+        src/synth/synth_engine.h
+        src/renderer/wav_renderer.cpp
+        src/renderer/wav_renderer.h
+        src/utils/midi_utils.h)
 
 # 链接 PortAudio
 target_link_libraries(synthpp portaudio)
