@@ -6,10 +6,16 @@
 #include "player.h"
 #include "twinkle_star.h"
 #include "audio_engine.h"
+#include <fstream>
 
 using namespace synthpp;
 
-int main() {
+int main(int argc, char *argv[]) {
+    std::ofstream log("debug.log");
+    log << "main entered" << std::endl;
+    log.close();
+    std::cout << "main entered, argc=" << argc << std::endl;
+    std::fflush(stdout);
     using namespace synthpp;
 
     TwinkleStar melody;

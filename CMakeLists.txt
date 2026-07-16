@@ -1,14 +1,33 @@
 cmake_minimum_required(VERSION 3.15)
-project(synthpp LANGUAGES CXX)
+project(synthpp)
 
+# 启用 C++20 标准（因为用了 std::numbers）
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ---- 使用 pkg-config 查找 PortAudio ----
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
+# 查找 PortAudio 库（MSYS2 的包会自动提供 cmake 配置文件）
+find_package(PortAudio REQUIRED)
 
-# ---- 生成可执行文件 ----
+# 调试输出
+# message(STATUS "PortAudio_FOUND = ${PortAudio_FOUND}")
+# message(STATUS "PortAudio_VERSION = ${PortAudio_VERSION}")
+
+# 列出所有以 PortAudio 或 portaudio 开头的目标（如果是 IMPORTED 目标）
+# get_cmake_property(_variableNames VARIABLES)
+# foreach (_varName IN LISTS _variableNames)
+#     if(_varName MATCHES "^PortAudio|^portaudio")
+#         message(STATUS "Variable: ${_varName} = ${${_varName}}")
+#     endif()
+# endforeach()
+
+# 列出所有目标（需要 CMake 3.10+）
+get_property(_targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY IMPORTED_TARGETS)
+message(STATUS "Imported targets: ${_targets}")
+
+# 包含你自己的头文件目录
+include_directories(include)
+
+# 添加可执行文件
 add_executable(synthpp main.cpp
     score.h
     score.cpp
@@ -18,9 +37,11 @@ add_executable(synthpp main.cpp
     player.cpp
     melody.h
     twinkle_star.h
-    melody.cpp)
+    melody.cpp
+    twinkle_star.cpp)
 
-# ---- 链接 PortAudio（通过 pkg-config 提供的变量） ----
-target_include_directories(synthpp PRIVATE ${PORTAUDIO_INCLUDE_DIRS})
-target_link_libraries(synthpp PRIVATE ${PORTAUDIO_LIBRARIES})
-target_compile_options(synthpp PRIVATE ${PORTAUDIO_CFLAGS_OTHER})
+# 链接 PortAudio
+target_link_libraries(synthpp portaudio)
+
+# （可选）为 Windows 生成控制台应用，避免弹出窗口
+set_target_properties(synthpp PROPERTIES WIN32_EXECUTABLE FALSE)

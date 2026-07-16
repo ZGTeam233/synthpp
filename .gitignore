@@ -27,8 +27,8 @@ CMakeUserPresets.json
 !*.cmake.in
 
 # 可执行文件（你生成的目标）
-SynthPP
-SynthPP.exe
+synthpp
+synthpp.exe
 
 # 依赖管理（如 vcpkg、conan）
 vcpkg_installed/
