@@ -101,6 +101,5 @@ Thumbs.db
 # （.env 已在上方加入）
 
 # --------------------- 测试文件 ------------------------
-midi_scribe_tool/*.mid
-midi_scribe_tool/*.txt
-midi_scribe_tool/*.json
+*.mid
+*.json

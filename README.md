@@ -1,16 +1,14 @@
 # synthpp
-通过 C++ 代码演奏
+通过 C++ 代码演奏, ~~?!B站音乐区的新乐器?!~~
 
-~~?!B站音乐区的新乐器?!~~
+**注意**: 本项目含有一个子项目 midi_scribe_tool, [点此访问其 README](third_party/midi_scribe_tool/README.md)
 
-#### 安装依赖
-打开终端, 运行以下命令
+## 安装依赖
 
 ```bash
 pacman -S mingw-w64-ucrt-x86_64-portaudio
-pip install pretty_midi mido -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-这里只演示 Windows MSYS2 UCRT64 环境
+这里只演示 _Windows MSYS2 UCRT64_ 环境
 
-其他环境, 如 Ubuntu / Windows MSVC 同理, 自行查找
+其他环境, 如 _Ubuntu_ / _Windows MSVC_ 同理, 自行查找
