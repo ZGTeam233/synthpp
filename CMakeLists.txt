@@ -29,7 +29,15 @@ include_directories(include)
 
 # 添加可执行文件
 add_executable(synthpp main.cpp
-            third_party/json.hpp)
+            third_party/json.hpp
+        src/core/note.h
+        src/core/score.cpp
+        src/core/score.h
+        src/core/melody.h
+        src/synth/voice.cpp
+        src/synth/voice.h
+        src/synth/synth_engine.cpp
+        src/synth/synth_engine.h)
 
 # 链接 PortAudio
 target_link_libraries(synthpp portaudio)
