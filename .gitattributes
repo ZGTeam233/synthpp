@@ -1,2 +1,2 @@
 # 排除 third_party/ 目录下的所有 .h 文件
-third_party/*.h linguist-vendored
+third_party/*.hpp linguist-vendored
