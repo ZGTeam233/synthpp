@@ -3,7 +3,7 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#include "melody.h"
+#include "../melody.h"
 
 namespace synthpp {
 // 可选：返回一个完整 Score 的便利方法

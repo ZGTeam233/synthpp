@@ -3,8 +3,8 @@
 // Copyright(c) 2026 ZGTeam233.
 //
 
-#include "player.h"
-#include "twinkle_star.h"
+#include "../player.h"
+#include "../twinkle_star.h"
 #include "audio_engine.h"
 #include <fstream>
 
