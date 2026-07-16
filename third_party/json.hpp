@@ -2980,15 +2980,15 @@ distinguish the stored values, and the functions @ref basic_json::is_null(),
 @ref basic_json::is_object(), @ref basic_json::is_array(),
 @ref basic_json::is_string(), @ref basic_json::is_boolean(),
 @ref basic_json::is_number() (with @ref basic_json::is_number_integer(),
-@ref basic_json::is_number_unsigned(), and @ref basic_json::is_number_double()),
+@ref basic_json::is_number_unsigned(), and @ref basic_json::is_number_float()),
 @ref basic_json::is_discarded(), @ref basic_json::is_primitive(), and
 @ref basic_json::is_structured() rely on it.
 
 @note There are three enumeration entries (number_integer, number_unsigned, and
-number_double), because the library distinguishes these three types for numbers:
+number_float), because the library distinguishes these three types for numbers:
 @ref basic_json::number_unsigned_t is used for unsigned integers,
 @ref basic_json::number_integer_t is used for signed integers, and
-@ref basic_json::number_double_t is used for doubleing-point numbers or to
+@ref basic_json::number_float_t is used for floating-point numbers or to
 approximate integers which do not fit in the limits of their respective type.
 
 @sa see @ref basic_json::basic_json(const value_t value_type) -- create a JSON
@@ -3005,7 +3005,7 @@ enum class value_t : std::uint8_t
     boolean,          ///< boolean value
     number_integer,   ///< number value (signed integer)
     number_unsigned,  ///< number value (unsigned integer)
-    number_double,     ///< number value (doubleing-point)
+    number_float,     ///< number value (floating-point)
     binary,           ///< binary array (ordered collection of bytes)
     discarded         ///< discarded by the parser callback function
 };
@@ -3031,7 +3031,7 @@ Returns an ordering that is similar to Python:
 {
     static constexpr std::array<std::uint8_t, 9> order = {{
             0 /* null */, 3 /* object */, 4 /* array */, 5 /* string */,
-            1 /* boolean */, 2 /* integer */, 2 /* unsigned */, 2 /* double */,
+            1 /* boolean */, 2 /* integer */, 2 /* unsigned */, 2 /* float */,
             6 /* binary */
         }
     };
@@ -4573,7 +4573,7 @@ class exception : public std::exception
                 case value_t::boolean: // LCOV_EXCL_LINE
                 case value_t::number_integer: // LCOV_EXCL_LINE
                 case value_t::number_unsigned: // LCOV_EXCL_LINE
-                case value_t::number_double: // LCOV_EXCL_LINE
+                case value_t::number_float: // LCOV_EXCL_LINE
                 case value_t::binary: // LCOV_EXCL_LINE
                 case value_t::discarded: // LCOV_EXCL_LINE
                 default:   // LCOV_EXCL_LINE
@@ -4868,9 +4868,9 @@ void get_arithmetic_value(const BasicJsonType& j, ArithmeticType& val)
             val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_integer_t*>());
             break;
         }
-        case value_t::number_double:
+        case value_t::number_float:
         {
-            val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_double_t*>());
+            val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_float_t*>());
             break;
         }
 
@@ -4924,7 +4924,7 @@ inline void from_json(const BasicJsonType& j, StringType& s)
 }
 
 template<typename BasicJsonType>
-inline void from_json(const BasicJsonType& j, typename BasicJsonType::number_double_t& val)
+inline void from_json(const BasicJsonType& j, typename BasicJsonType::number_float_t& val)
 {
     get_arithmetic_value(j, val);
 }
@@ -5188,7 +5188,7 @@ template < typename BasicJsonType, typename ArithmeticType,
                std::is_arithmetic<ArithmeticType>::value&&
                !std::is_same<ArithmeticType, typename BasicJsonType::number_unsigned_t>::value&&
                !std::is_same<ArithmeticType, typename BasicJsonType::number_integer_t>::value&&
-               !std::is_same<ArithmeticType, typename BasicJsonType::number_double_t>::value&&
+               !std::is_same<ArithmeticType, typename BasicJsonType::number_float_t>::value&&
                !std::is_same<ArithmeticType, typename BasicJsonType::boolean_t>::value,
                int > = 0 >
 inline void from_json(const BasicJsonType& j, ArithmeticType& val)
@@ -5205,9 +5205,9 @@ inline void from_json(const BasicJsonType& j, ArithmeticType& val)
             val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_integer_t*>());
             break;
         }
-        case value_t::number_double:
+        case value_t::number_float:
         {
-            val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_double_t*>());
+            val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_float_t*>());
             break;
         }
         case value_t::boolean:
@@ -5382,7 +5382,7 @@ NLOHMANN_JSON_NAMESPACE_END
 #include <iterator> // begin, end
 #include <string> // string
 #include <tuple> // tuple, get
-#include <type_traits> // is_same, is_constructible, is_doubleing_point, is_enum, underlying_type
+#include <type_traits> // is_same, is_constructible, is_floating_point, is_enum, underlying_type
 #include <utility> // move, forward, declval, pair
 #include <valarray> // valarray
 #include <vector> // vector
@@ -5563,7 +5563,7 @@ template<typename IteratorType> class iteration_proxy_value
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -5761,13 +5761,13 @@ struct external_constructor<value_t::binary>
 };
 
 template<>
-struct external_constructor<value_t::number_double>
+struct external_constructor<value_t::number_float>
 {
     template<typename BasicJsonType>
-    static void construct(BasicJsonType& j, typename BasicJsonType::number_double_t val) noexcept
+    static void construct(BasicJsonType& j, typename BasicJsonType::number_float_t val) noexcept
     {
         j.m_data.m_value.destroy(j.m_data.m_type);
-        j.m_data.m_type = value_t::number_double;
+        j.m_data.m_type = value_t::number_float;
         j.m_data.m_value = val;
         j.assert_invariant();
     }
@@ -5961,10 +5961,10 @@ inline void to_json(BasicJsonType& j, typename BasicJsonType::string_t&& s)
 }
 
 template<typename BasicJsonType, typename FloatType,
-         enable_if_t<std::is_doubleing_point<FloatType>::value, int> = 0>
+         enable_if_t<std::is_floating_point<FloatType>::value, int> = 0>
 inline void to_json(BasicJsonType& j, FloatType val) noexcept
 {
-    external_constructor<value_t::number_double>::construct(j, static_cast<typename BasicJsonType::number_double_t>(val));
+    external_constructor<value_t::number_float>::construct(j, static_cast<typename BasicJsonType::number_float_t>(val));
 }
 
 template<typename BasicJsonType, typename CompatibleNumberUnsignedType,
@@ -6327,7 +6327,7 @@ std::size_t hash(const BasicJsonType& j)
     using string_t = typename BasicJsonType::string_t;
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
 
     const auto type = static_cast<std::size_t>(j.type());
     switch (j.type())
@@ -6384,9 +6384,9 @@ std::size_t hash(const BasicJsonType& j)
             return combine(type, h);
         }
 
-        case BasicJsonType::value_t::number_double:
+        case BasicJsonType::value_t::number_float:
         {
-            const auto h = std::hash<number_double_t> {}(j.template get<number_double_t>());
+            const auto h = std::hash<number_float_t> {}(j.template get<number_float_t>());
             return combine(type, h);
         }
 
@@ -7067,7 +7067,7 @@ class lexer_base
         value_string,     ///< a string -- use get_string() for actual value
         value_unsigned,   ///< an unsigned integer -- use get_number_unsigned() for actual value
         value_integer,    ///< a signed integer -- use get_number_integer() for actual value
-        value_double,      ///< an doubleing point number -- use get_number_double() for actual value
+        value_float,      ///< an floating point number -- use get_number_float() for actual value
         begin_array,      ///< the character for array begin `[`
         begin_object,     ///< the character for object begin `{`
         end_array,        ///< the character for array end `]`
@@ -7098,7 +7098,7 @@ class lexer_base
                 return "string literal";
             case token_type::value_unsigned:
             case token_type::value_integer:
-            case token_type::value_double:
+            case token_type::value_float:
                 return "number literal";
             case token_type::begin_array:
                 return "'['";
@@ -7135,7 +7135,7 @@ class lexer : public lexer_base<BasicJsonType>
 {
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using char_type = typename InputAdapterType::char_type;
     using char_int_type = typename char_traits<char_type>::int_type;
@@ -7932,7 +7932,7 @@ class lexer : public lexer_base<BasicJsonType>
     }
 
     JSON_HEDLEY_NON_NULL(2)
-    static void strtof(double& f, const char* str, char** endptr) noexcept
+    static void strtof(float& f, const char* str, char** endptr) noexcept
     {
         f = std::strtof(str, endptr);
     }
@@ -7979,10 +7979,10 @@ class lexer : public lexer_base<BasicJsonType>
 
     During scanning, the read bytes are stored in token_buffer. This string is
     then converted to a signed integer, an unsigned integer, or a
-    doubleing-point number.
+    floating-point number.
 
     @return token_type::value_unsigned, token_type::value_integer, or
-            token_type::value_double if number could be successfully scanned,
+            token_type::value_float if number could be successfully scanned,
             token_type::parse_error otherwise
 
     @note The scanner is independent of the current locale. Internally, the
@@ -8125,7 +8125,7 @@ scan_number_any1:
 
 scan_number_decimal1:
         // state: we just parsed a decimal point
-        number_type = token_type::value_double;
+        number_type = token_type::value_float;
         switch (get())
         {
             case '0':
@@ -8182,7 +8182,7 @@ scan_number_decimal2:
 
 scan_number_exponent:
         // we just parsed an exponent
-        number_type = token_type::value_double;
+        number_type = token_type::value_float;
         switch (get())
         {
             case '+':
@@ -8272,7 +8272,7 @@ scan_number_done:
         char* endptr = nullptr; // NOLINT(misc-const-correctness,cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         errno = 0;
 
-        // try to parse integers first and fall back to doubles
+        // try to parse integers first and fall back to floats
         if (number_type == token_type::value_unsigned)
         {
             const auto x = std::strtoull(token_buffer.data(), &endptr, 10);
@@ -8306,14 +8306,14 @@ scan_number_done:
             }
         }
 
-        // this code is reached if we parse a doubleing-point number or if an
+        // this code is reached if we parse a floating-point number or if an
         // integer conversion above failed
-        strtof(value_double, token_buffer.data(), &endptr);
+        strtof(value_float, token_buffer.data(), &endptr);
 
         // we checked the number format before
         JSON_ASSERT(endptr == token_buffer.data() + token_buffer.size());
 
-        return token_type::value_double;
+        return token_type::value_float;
     }
 
     /*!
@@ -8446,10 +8446,10 @@ scan_number_done:
         return value_unsigned;
     }
 
-    /// return doubleing-point value
-    constexpr number_double_t get_number_double() const noexcept
+    /// return floating-point value
+    constexpr number_float_t get_number_float() const noexcept
     {
-        return value_double;
+        return value_float;
     }
 
     /// return current string value (implicitly resets the token; useful only once)
@@ -8653,7 +8653,7 @@ scan_number_done:
     // number values
     number_integer_t value_integer = 0;
     number_unsigned_t value_unsigned = 0;
-    number_double_t value_double = 0;
+    number_float_t value_float = 0;
 
     /// the decimal point
     const char_int_type decimal_point_char = '.';
@@ -8683,7 +8683,7 @@ struct json_sax
 {
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using binary_t = typename BasicJsonType::binary_t;
 
@@ -8715,12 +8715,12 @@ struct json_sax
     virtual bool number_unsigned(number_unsigned_t val) = 0;
 
     /*!
-    @brief a doubleing-point number was read
-    @param[in] val  doubleing-point value
+    @brief a floating-point number was read
+    @param[in] val  floating-point value
     @param[in] s    raw token value
     @return whether parsing should proceed
     */
-    virtual bool number_double(number_double_t val, const string_t& s) = 0;
+    virtual bool number_float(number_float_t val, const string_t& s) = 0;
 
     /*!
     @brief a string value was read
@@ -8819,7 +8819,7 @@ class json_sax_dom_parser
   public:
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using binary_t = typename BasicJsonType::binary_t;
     using lexer_t = lexer<BasicJsonType, InputAdapterType>;
@@ -8864,7 +8864,7 @@ class json_sax_dom_parser
         return true;
     }
 
-    bool number_double(number_double_t val, const string_t& /*unused*/)
+    bool number_float(number_float_t val, const string_t& /*unused*/)
     {
         handle_value(val);
         return true;
@@ -9040,7 +9040,7 @@ class json_sax_dom_parser
                 case value_t::binary:
                 case value_t::number_integer:
                 case value_t::number_unsigned:
-                case value_t::number_double:
+                case value_t::number_float:
                 {
                     v.start_position = v.end_position - m_lexer_ref->get_string().size();
                     break;
@@ -9125,7 +9125,7 @@ class json_sax_dom_callback_parser
   public:
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using binary_t = typename BasicJsonType::binary_t;
     using parser_callback_t = typename BasicJsonType::parser_callback_t;
@@ -9172,7 +9172,7 @@ class json_sax_dom_callback_parser
         return true;
     }
 
-    bool number_double(number_double_t val, const string_t& /*unused*/)
+    bool number_float(number_float_t val, const string_t& /*unused*/)
     {
         handle_value(val);
         return true;
@@ -9430,7 +9430,7 @@ class json_sax_dom_callback_parser
                 case value_t::binary:
                 case value_t::number_integer:
                 case value_t::number_unsigned:
-                case value_t::number_double:
+                case value_t::number_float:
                 {
                     v.start_position = v.end_position - m_lexer_ref->get_string().size();
                     break;
@@ -9562,7 +9562,7 @@ class json_sax_acceptor
   public:
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using binary_t = typename BasicJsonType::binary_t;
 
@@ -9586,7 +9586,7 @@ class json_sax_acceptor
         return true;
     }
 
-    bool number_double(number_double_t /*unused*/, const string_t& /*unused*/)
+    bool number_float(number_float_t /*unused*/, const string_t& /*unused*/)
     {
         return true;
     }
@@ -9681,7 +9681,7 @@ using number_unsigned_function_t =
     decltype(std::declval<T&>().number_unsigned(std::declval<Unsigned>()));
 
 template<typename T, typename Float, typename String>
-using number_double_function_t = decltype(std::declval<T&>().number_double(
+using number_float_function_t = decltype(std::declval<T&>().number_float(
                                     std::declval<Float>(), std::declval<const String&>()));
 
 template<typename T, typename String>
@@ -9724,7 +9724,7 @@ struct is_sax
 
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using binary_t = typename BasicJsonType::binary_t;
     using exception_t = typename BasicJsonType::exception;
@@ -9735,7 +9735,7 @@ struct is_sax
         is_detected_exact<bool, boolean_function_t, SAX>::value &&
         is_detected_exact<bool, number_integer_function_t, SAX, number_integer_t>::value &&
         is_detected_exact<bool, number_unsigned_function_t, SAX, number_unsigned_t>::value &&
-        is_detected_exact<bool, number_double_function_t, SAX, number_double_t, string_t>::value &&
+        is_detected_exact<bool, number_float_function_t, SAX, number_float_t, string_t>::value &&
         is_detected_exact<bool, string_function_t, SAX, string_t>::value &&
         is_detected_exact<bool, binary_function_t, SAX, binary_t>::value &&
         is_detected_exact<bool, start_object_function_t, SAX>::value &&
@@ -9755,7 +9755,7 @@ struct is_sax_static_asserts
 
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using binary_t = typename BasicJsonType::binary_t;
     using exception_t = typename BasicJsonType::exception;
@@ -9775,9 +9775,9 @@ struct is_sax_static_asserts
         is_detected_exact<bool, number_unsigned_function_t, SAX,
         number_unsigned_t>::value,
         "Missing/invalid function: bool number_unsigned(number_unsigned_t)");
-    static_assert(is_detected_exact<bool, number_double_function_t, SAX,
-                  number_double_t, string_t>::value,
-                  "Missing/invalid function: bool number_double(number_double_t, const string_t&)");
+    static_assert(is_detected_exact<bool, number_float_function_t, SAX,
+                  number_float_t, string_t>::value,
+                  "Missing/invalid function: bool number_float(number_float_t, const string_t&)");
     static_assert(
         is_detected_exact<bool, string_function_t, SAX, string_t>::value,
         "Missing/invalid function: bool string(string_t&)");
@@ -9846,7 +9846,7 @@ class binary_reader
 {
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using binary_t = typename BasicJsonType::binary_t;
     using json_sax_t = SAX;
@@ -10055,7 +10055,7 @@ class binary_reader
             case 0x01: // double
             {
                 double number{};
-                return get_number<double, true>(input_format_t::bson, number) && sax->number_double(static_cast<number_double_t>(number), "");
+                return get_number<double, true>(input_format_t::bson, number) && sax->number_float(static_cast<number_float_t>(number), "");
             }
 
             case 0x02: // string
@@ -10629,12 +10629,12 @@ class binary_reader
                 const auto byte2 = static_cast<unsigned char>(byte2_raw);
 
                 // code from RFC 7049, Appendix D, Figure 3:
-                // As half-precision doubleing-point numbers were only added
+                // As half-precision floating-point numbers were only added
                 // to IEEE 754 in 2008, today's programming platforms often
                 // still only have limited support for them. It is very
                 // easy to include at least decoding support for them even
                 // without such support. An example of a small decoder for
-                // half-precision doubleing-point numbers in the C language
+                // half-precision floating-point numbers in the C language
                 // is shown in Fig. 3.
                 const auto half = static_cast<unsigned int>((byte1 << 8u) + byte2);
                 const double val = [&half]
@@ -10655,21 +10655,21 @@ class binary_reader
                             return std::ldexp(mant + 1024, exp - 25);
                     }
                 }();
-                return sax->number_double((half & 0x8000u) != 0
-                                         ? static_cast<number_double_t>(-val)
-                                         : static_cast<number_double_t>(val), "");
+                return sax->number_float((half & 0x8000u) != 0
+                                         ? static_cast<number_float_t>(-val)
+                                         : static_cast<number_float_t>(val), "");
             }
 
             case 0xFA: // Single-Precision Float (four-byte IEEE 754)
             {
-                double number{};
-                return get_number(input_format_t::cbor, number) && sax->number_double(static_cast<number_double_t>(number), "");
+                float number{};
+                return get_number(input_format_t::cbor, number) && sax->number_float(static_cast<number_float_t>(number), "");
             }
 
             case 0xFB: // Double-Precision Float (eight-byte IEEE 754)
             {
                 double number{};
-                return get_number(input_format_t::cbor, number) && sax->number_double(static_cast<number_double_t>(number), "");
+                return get_number(input_format_t::cbor, number) && sax->number_float(static_cast<number_float_t>(number), "");
             }
 
             default: // anything else (0xFF is handled inside the other types)
@@ -11220,16 +11220,16 @@ class binary_reader
                 return get_msgpack_binary(b) && sax->binary(b);
             }
 
-            case 0xCA: // double 32
+            case 0xCA: // float 32
             {
-                double number{};
-                return get_number(input_format_t::msgpack, number) && sax->number_double(static_cast<number_double_t>(number), "");
+                float number{};
+                return get_number(input_format_t::msgpack, number) && sax->number_float(static_cast<number_float_t>(number), "");
             }
 
-            case 0xCB: // double 64
+            case 0xCB: // float 64
             {
                 double number{};
-                return get_number(input_format_t::msgpack, number) && sax->number_double(static_cast<number_double_t>(number), "");
+                return get_number(input_format_t::msgpack, number) && sax->number_float(static_cast<number_float_t>(number), "");
             }
 
             case 0xCC: // uint 8
@@ -12186,12 +12186,12 @@ class binary_reader
                 const auto byte2 = static_cast<unsigned char>(byte2_raw);
 
                 // code from RFC 7049, Appendix D, Figure 3:
-                // As half-precision doubleing-point numbers were only added
+                // As half-precision floating-point numbers were only added
                 // to IEEE 754 in 2008, today's programming platforms often
                 // still only have limited support for them. It is very
                 // easy to include at least decoding support for them even
                 // without such support. An example of a small decoder for
-                // half-precision doubleing-point numbers in the C language
+                // half-precision floating-point numbers in the C language
                 // is shown in Fig. 3.
                 const auto half = static_cast<unsigned int>((byte2 << 8u) + byte1);
                 const double val = [&half]
@@ -12212,21 +12212,21 @@ class binary_reader
                             return std::ldexp(mant + 1024, exp - 25);
                     }
                 }();
-                return sax->number_double((half & 0x8000u) != 0
-                                         ? static_cast<number_double_t>(-val)
-                                         : static_cast<number_double_t>(val), "");
+                return sax->number_float((half & 0x8000u) != 0
+                                         ? static_cast<number_float_t>(-val)
+                                         : static_cast<number_float_t>(val), "");
             }
 
             case 'd':
             {
-                double number{};
-                return get_number(input_format, number) && sax->number_double(static_cast<number_double_t>(number), "");
+                float number{};
+                return get_number(input_format, number) && sax->number_float(static_cast<number_float_t>(number), "");
             }
 
             case 'D':
             {
                 double number{};
-                return get_number(input_format, number) && sax->number_double(static_cast<number_double_t>(number), "");
+                return get_number(input_format, number) && sax->number_float(static_cast<number_float_t>(number), "");
             }
 
             case 'H':
@@ -12515,8 +12515,8 @@ class binary_reader
                 return sax->number_integer(number_lexer.get_number_integer());
             case token_type::value_unsigned:
                 return sax->number_unsigned(number_lexer.get_number_unsigned());
-            case token_type::value_double:
-                return sax->number_double(number_lexer.get_number_double(), std::move(number_string));
+            case token_type::value_float:
+                return sax->number_float(number_lexer.get_number_float(), std::move(number_string));
             case token_type::uninitialized:
             case token_type::literal_true:
             case token_type::literal_false:
@@ -12919,7 +12919,7 @@ class parser
 {
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
     using lexer_t = lexer<BasicJsonType, InputAdapterType>;
     using token_type = typename lexer_t::token_type;
@@ -13119,9 +13119,9 @@ class parser
                         continue;
                     }
 
-                    case token_type::value_double:
+                    case token_type::value_float:
                     {
-                        const auto res = m_lexer.get_number_double();
+                        const auto res = m_lexer.get_number_float();
 
                         if (JSON_HEDLEY_UNLIKELY(!std::isfinite(res)))
                         {
@@ -13130,7 +13130,7 @@ class parser
                                                     out_of_range::create(406, concat("number overflow parsing '", m_lexer.get_token_string(), '\''), nullptr));
                         }
 
-                        if (JSON_HEDLEY_UNLIKELY(!sax->number_double(res, m_lexer.get_string())))
+                        if (JSON_HEDLEY_UNLIKELY(!sax->number_float(res, m_lexer.get_string())))
                         {
                             return false;
                         }
@@ -13678,7 +13678,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -13781,7 +13781,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -13819,7 +13819,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -13860,7 +13860,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -13902,7 +13902,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -13955,7 +13955,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -14006,7 +14006,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -14051,7 +14051,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -14101,7 +14101,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -14160,7 +14160,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -14236,7 +14236,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -14267,7 +14267,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -14824,7 +14824,7 @@ class json_pointer
                 case detail::value_t::boolean:
                 case detail::value_t::number_integer:
                 case detail::value_t::number_unsigned:
-                case detail::value_t::number_double:
+                case detail::value_t::number_float:
                 case detail::value_t::binary:
                 case detail::value_t::discarded:
                 default:
@@ -14905,7 +14905,7 @@ class json_pointer
                 case detail::value_t::boolean:
                 case detail::value_t::number_integer:
                 case detail::value_t::number_unsigned:
-                case detail::value_t::number_double:
+                case detail::value_t::number_float:
                 case detail::value_t::binary:
                 case detail::value_t::discarded:
                 default:
@@ -14956,7 +14956,7 @@ class json_pointer
                 case detail::value_t::boolean:
                 case detail::value_t::number_integer:
                 case detail::value_t::number_unsigned:
-                case detail::value_t::number_double:
+                case detail::value_t::number_float:
                 case detail::value_t::binary:
                 case detail::value_t::discarded:
                 default:
@@ -15012,7 +15012,7 @@ class json_pointer
                 case detail::value_t::boolean:
                 case detail::value_t::number_integer:
                 case detail::value_t::number_unsigned:
-                case detail::value_t::number_double:
+                case detail::value_t::number_float:
                 case detail::value_t::binary:
                 case detail::value_t::discarded:
                 default:
@@ -15063,7 +15063,7 @@ class json_pointer
                 case detail::value_t::boolean:
                 case detail::value_t::number_integer:
                 case detail::value_t::number_unsigned:
-                case detail::value_t::number_double:
+                case detail::value_t::number_float:
                 case detail::value_t::binary:
                 case detail::value_t::discarded:
                 default:
@@ -15142,7 +15142,7 @@ class json_pointer
                 case detail::value_t::boolean:
                 case detail::value_t::number_integer:
                 case detail::value_t::number_unsigned:
-                case detail::value_t::number_double:
+                case detail::value_t::number_float:
                 case detail::value_t::binary:
                 case detail::value_t::discarded:
                 default:
@@ -15284,7 +15284,7 @@ class json_pointer
             case detail::value_t::boolean:
             case detail::value_t::number_integer:
             case detail::value_t::number_unsigned:
-            case detail::value_t::number_double:
+            case detail::value_t::number_float:
             case detail::value_t::binary:
             case detail::value_t::discarded:
             default:
@@ -15787,7 +15787,7 @@ class binary_writer
 {
     using string_t = typename BasicJsonType::string_t;
     using binary_t = typename BasicJsonType::binary_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
 
   public:
     /*!
@@ -15820,7 +15820,7 @@ class binary_writer
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -15945,25 +15945,25 @@ class binary_writer
                 break;
             }
 
-            case value_t::number_double:
+            case value_t::number_float:
             {
-                if (std::isnan(j.m_data.m_value.number_double))
+                if (std::isnan(j.m_data.m_value.number_float))
                 {
                     // NaN is 0xf97e00 in CBOR
                     oa->write_character(to_char_type(0xF9));
                     oa->write_character(to_char_type(0x7E));
                     oa->write_character(to_char_type(0x00));
                 }
-                else if (std::isinf(j.m_data.m_value.number_double))
+                else if (std::isinf(j.m_data.m_value.number_float))
                 {
                     // Infinity is 0xf97c00, -Infinity is 0xf9fc00
                     oa->write_character(to_char_type(0xf9));
-                    oa->write_character(j.m_data.m_value.number_double > 0 ? to_char_type(0x7C) : to_char_type(0xFC));
+                    oa->write_character(j.m_data.m_value.number_float > 0 ? to_char_type(0x7C) : to_char_type(0xFC));
                     oa->write_character(to_char_type(0x00));
                 }
                 else
                 {
-                    write_compact_double(j.m_data.m_value.number_double, detail::input_format_t::cbor);
+                    write_compact_float(j.m_data.m_value.number_float, detail::input_format_t::cbor);
                 }
                 break;
             }
@@ -16285,9 +16285,9 @@ class binary_writer
                 break;
             }
 
-            case value_t::number_double:
+            case value_t::number_float:
             {
-                write_compact_double(j.m_data.m_value.number_double, detail::input_format_t::msgpack);
+                write_compact_float(j.m_data.m_value.number_float, detail::input_format_t::msgpack);
                 break;
             }
 
@@ -16524,9 +16524,9 @@ class binary_writer
                 break;
             }
 
-            case value_t::number_double:
+            case value_t::number_float:
             {
-                write_number_with_ubjson_prefix(j.m_data.m_value.number_double, add_prefix, use_bjdata);
+                write_number_with_ubjson_prefix(j.m_data.m_value.number_float, add_prefix, use_bjdata);
                 break;
             }
 
@@ -16930,7 +16930,7 @@ class binary_writer
             case value_t::boolean:
                 return header_size + 1ul;
 
-            case value_t::number_double:
+            case value_t::number_float:
                 return header_size + 8ul;
 
             case value_t::number_integer:
@@ -16977,8 +16977,8 @@ class binary_writer
             case value_t::boolean:
                 return write_bson_boolean(name, j.m_data.m_value.boolean);
 
-            case value_t::number_double:
-                return write_bson_double(name, j.m_data.m_value.number_double);
+            case value_t::number_float:
+                return write_bson_double(name, j.m_data.m_value.number_float);
 
             case value_t::number_integer:
                 return write_bson_integer(name, j.m_data.m_value.number_integer);
@@ -17038,12 +17038,12 @@ class binary_writer
     // CBOR //
     //////////
 
-    static constexpr CharType get_cbor_double_prefix(double /*unused*/)
+    static constexpr CharType get_cbor_float_prefix(float /*unused*/)
     {
         return to_char_type(0xFA);  // Single-Precision Float
     }
 
-    static constexpr CharType get_cbor_double_prefix(double /*unused*/)
+    static constexpr CharType get_cbor_float_prefix(double /*unused*/)
     {
         return to_char_type(0xFB);  // Double-Precision Float
     }
@@ -17052,30 +17052,30 @@ class binary_writer
     // MsgPack //
     /////////////
 
-    static constexpr CharType get_msgpack_double_prefix(double /*unused*/)
+    static constexpr CharType get_msgpack_float_prefix(float /*unused*/)
     {
-        return to_char_type(0xCA);  // double 32
+        return to_char_type(0xCA);  // float 32
     }
 
-    static constexpr CharType get_msgpack_double_prefix(double /*unused*/)
+    static constexpr CharType get_msgpack_float_prefix(double /*unused*/)
     {
-        return to_char_type(0xCB);  // double 64
+        return to_char_type(0xCB);  // float 64
     }
 
     ////////////
     // UBJSON //
     ////////////
 
-    // UBJSON: write number (doubleing point)
+    // UBJSON: write number (floating point)
     template<typename NumberType, typename std::enable_if<
-                 std::is_doubleing_point<NumberType>::value, int>::type = 0>
+                 std::is_floating_point<NumberType>::value, int>::type = 0>
     void write_number_with_ubjson_prefix(const NumberType n,
                                          const bool add_prefix,
                                          const bool use_bjdata)
     {
         if (add_prefix)
         {
-            oa->write_character(get_ubjson_double_prefix(n));
+            oa->write_character(get_ubjson_float_prefix(n));
         }
         write_number(n, use_bjdata);
     }
@@ -17170,7 +17170,7 @@ class binary_writer
     // UBJSON: write number (signed integer)
     template < typename NumberType, typename std::enable_if <
                    std::is_signed<NumberType>::value&&
-                   !std::is_doubleing_point<NumberType>::value, int >::type = 0 >
+                   !std::is_floating_point<NumberType>::value, int >::type = 0 >
     void write_number_with_ubjson_prefix(const NumberType n,
                                          const bool add_prefix,
                                          const bool use_bjdata)
@@ -17334,8 +17334,8 @@ class binary_writer
                 return 'H'; // LCOV_EXCL_LINE
             }
 
-            case value_t::number_double:
-                return get_ubjson_double_prefix(j.m_data.m_value.number_double);
+            case value_t::number_float:
+                return get_ubjson_float_prefix(j.m_data.m_value.number_float);
 
             case value_t::string:
                 return 'S';
@@ -17353,14 +17353,14 @@ class binary_writer
         }
     }
 
-    static constexpr CharType get_ubjson_double_prefix(double /*unused*/)
+    static constexpr CharType get_ubjson_float_prefix(float /*unused*/)
     {
-        return 'd';  // double 32
+        return 'd';  // float 32
     }
 
-    static constexpr CharType get_ubjson_double_prefix(double /*unused*/)
+    static constexpr CharType get_ubjson_float_prefix(double /*unused*/)
     {
-        return 'D';  // double 64
+        return 'D';  // float 64
     }
 
     /*!
@@ -17463,14 +17463,14 @@ class binary_writer
         {
             for (const auto& el : value.at(key))
             {
-                write_number(static_cast<double>(el.m_data.m_value.number_double), true);
+                write_number(static_cast<float>(el.m_data.m_value.number_float), true);
             }
         }
         else if (dtype == 'D')
         {
             for (const auto& el : value.at(key))
             {
-                write_number(static_cast<double>(el.m_data.m_value.number_double), true);
+                write_number(static_cast<double>(el.m_data.m_value.number_float), true);
             }
         }
         return false;
@@ -17510,26 +17510,26 @@ class binary_writer
         oa->write_characters(vec.data(), sizeof(NumberType));
     }
 
-    void write_compact_double(const number_double_t n, detail::input_format_t format)
+    void write_compact_float(const number_float_t n, detail::input_format_t format)
     {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdouble-equal"
+#pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif
-        if (static_cast<double>(n) >= static_cast<double>(std::numeric_limits<double>::lowest()) &&
-                static_cast<double>(n) <= static_cast<double>((std::numeric_limits<double>::max)()) &&
-                static_cast<double>(static_cast<double>(n)) == static_cast<double>(n))
+        if (static_cast<double>(n) >= static_cast<double>(std::numeric_limits<float>::lowest()) &&
+                static_cast<double>(n) <= static_cast<double>((std::numeric_limits<float>::max)()) &&
+                static_cast<double>(static_cast<float>(n)) == static_cast<double>(n))
         {
             oa->write_character(format == detail::input_format_t::cbor
-                                ? get_cbor_double_prefix(static_cast<double>(n))
-                                : get_msgpack_double_prefix(static_cast<double>(n)));
-            write_number(static_cast<double>(n));
+                                ? get_cbor_float_prefix(static_cast<float>(n))
+                                : get_msgpack_float_prefix(static_cast<float>(n)));
+            write_number(static_cast<float>(n));
         }
         else
         {
             oa->write_character(format == detail::input_format_t::cbor
-                                ? get_cbor_double_prefix(n)
-                                : get_msgpack_double_prefix(n));
+                                ? get_cbor_float_prefix(n)
+                                : get_msgpack_float_prefix(n));
             write_number(n);
         }
 #ifdef __GNUC__
@@ -17643,7 +17643,7 @@ namespace detail
 {
 
 /*!
-@brief implements the Grisu2 algorithm for binary to decimal doubleing-point
+@brief implements the Grisu2 algorithm for binary to decimal floating-point
 conversion.
 
 This implementation is a slightly modified version of the reference
@@ -17819,7 +17819,7 @@ boundaries compute_boundaries(FloatType value)
     //      value = 1.F * 2^(E - bias) = (2^(p-1) + F) * 2^(E - bias - (p-1))
 
     static_assert(std::numeric_limits<FloatType>::is_iec559,
-                  "internal error: dtoa_short requires an IEEE-754 doubleing-point implementation");
+                  "internal error: dtoa_short requires an IEEE-754 floating-point implementation");
 
     constexpr int      kPrecision = std::numeric_limits<FloatType>::digits; // = p (includes the hidden bit)
     constexpr int      kBias      = std::numeric_limits<FloatType>::max_exponent - 1 + (kPrecision - 1);
@@ -17837,10 +17837,10 @@ boundaries compute_boundaries(FloatType value)
                     ? diyfp(F, kMinExp)
                     : diyfp(F + kHiddenBit, static_cast<int>(E) - kBias);
 
-    // Compute the boundaries m- and m+ of the doubleing-point value
+    // Compute the boundaries m- and m+ of the floating-point value
     // v = f * 2^e.
     //
-    // Determine v- and v+, the doubleing-point predecessor and successor if v,
+    // Determine v- and v+, the floating-point predecessor and successor if v,
     // respectively.
     //
     //      v- = v - 2^e        if f != 2^(p-1) or e == e_min                (A)
@@ -17967,7 +17967,7 @@ inline cached_power get_cached_power_for_binary_exponent(int e)
     //  and the computation itself is approximated [...]. In practice, however,
     //  this simple function is sufficient."
     //
-    // For IEEE double precision doubleing-point numbers converted into
+    // For IEEE double precision floating-point numbers converted into
     // normalized diyfp's w = f * 2^e, with q = 64,
     //
     //      e >= -1022      (min IEEE exponent)
@@ -18087,7 +18087,7 @@ inline cached_power get_cached_power_for_binary_exponent(int e)
 
     // This computation gives exactly the same results for k as
     //      k = ceil((kAlpha - e - 1) * 0.30102999566398114)
-    // for |e| <= 1500, but doesn't require doubleing-point operations.
+    // for |e| <= 1500, but doesn't require floating-point operations.
     // NB: log_10(2) ~= 78913 / 2^18
     JSON_ASSERT(e >= -1500);
     JSON_ASSERT(e <=  1500);
@@ -18210,7 +18210,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     static_assert(kAlpha >= -60, "internal error");
     static_assert(kGamma <= -32, "internal error");
 
-    // Generates the digits (and the exponent) of a decimal doubleing-point
+    // Generates the digits (and the exponent) of a decimal floating-point
     // number V = buffer * 10^decimal_exponent in the range [M-, M+]. The diyfp's
     // w, M- and M+ share the same exponent e, which satisfies alpha <= e <= gamma.
     //
@@ -18430,7 +18430,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     //
     //      N = 1 + ceil(p * log_10(2))
     //
-    // decimal digits are sufficient to identify all binary doubleing-point
+    // decimal digits are sufficient to identify all binary floating-point
     // numbers (Matula, "In-and-Out conversions").
     // This implies that the algorithm does not produce more than N decimal
     // digits.
@@ -18514,19 +18514,19 @@ void grisu2(char* buf, int& len, int& decimal_exponent, FloatType value)
     JSON_ASSERT(value > 0);
 
     // If the neighbors (and boundaries) of 'value' are always computed for double-precision
-    // numbers, all double's can be recovered using strtod (and strtof). However, the resulting
+    // numbers, all float's can be recovered using strtod (and strtof). However, the resulting
     // decimal representations are not exactly "short".
     //
     // The documentation for 'std::to_chars' (https://en.cppreference.com/w/cpp/utility/to_chars)
     // says "value is converted to a string as if by std::sprintf in the default ("C") locale"
-    // and since sprintf promotes doubles to doubles, I think this is exactly what 'std::to_chars'
+    // and since sprintf promotes floats to doubles, I think this is exactly what 'std::to_chars'
     // does.
     // On the other hand, the documentation for 'std::to_chars' requires that "parsing the
     // representation using the corresponding std::from_chars function recovers value exactly". That
-    // indicates that single precision doubleing-point numbers should be recovered using
+    // indicates that single precision floating-point numbers should be recovered using
     // 'std::strtof'.
     //
-    // NB: If the neighbors are computed for single-precision numbers, there is a single double
+    // NB: If the neighbors are computed for single-precision numbers, there is a single float
     //     (7.0385307e-26f) which can't be recovered using strtod. The resulting double precision
     //     value is off by 1 ulp.
 #if 0 // NOLINT(readability-avoid-unconditional-preprocessor-if)
@@ -18616,7 +18616,7 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
         // len <= max_exp + 2
 
         std::memset(buf + k, '0', static_cast<size_t>(n) - static_cast<size_t>(k));
-        // Make it look like a doubleing-point number (#362, #378)
+        // Make it look like a floating-point number (#362, #378)
         buf[n + 0] = '.';
         buf[n + 1] = '0';
         return buf + (static_cast<size_t>(n) + 2);
@@ -18670,7 +18670,7 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
 }  // namespace dtoa_impl
 
 /*!
-@brief generates a decimal representation of the doubleing-point number value in [first, last).
+@brief generates a decimal representation of the floating-point number value in [first, last).
 
 The format of the resulting decimal representation is similar to printf's %g
 format. Returns an iterator pointing past-the-end of the decimal representation.
@@ -18696,12 +18696,12 @@ char* to_chars(char* first, const char* last, FloatType value)
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdouble-equal"
+#pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif
     if (value == 0) // +-0
     {
         *first++ = '0';
-        // Make it look like a doubleing-point number (#362, #378)
+        // Make it look like a floating-point number (#362, #378)
         *first++ = '.';
         *first++ = '0';
         return first;
@@ -18772,7 +18772,7 @@ template<typename BasicJsonType>
 class serializer
 {
     using string_t = typename BasicJsonType::string_t;
-    using number_double_t = typename BasicJsonType::number_double_t;
+    using number_float_t = typename BasicJsonType::number_float_t;
     using number_integer_t = typename BasicJsonType::number_integer_t;
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
     using binary_char_t = typename BasicJsonType::binary_t::value_type;
@@ -18813,7 +18813,7 @@ class serializer
 
     - strings and object keys are escaped using `escape_string()`
     - integer numbers are converted implicitly via `operator<<`
-    - doubleing-point numbers are converted to a string using `"%g"` format
+    - floating-point numbers are converted to a string using `"%g"` format
     - binary values are serialized as objects containing the subtype and the
       byte array
 
@@ -19071,9 +19071,9 @@ class serializer
                 return;
             }
 
-            case value_t::number_double:
+            case value_t::number_float:
             {
-                dump_double(val.m_data.m_value.number_double);
+                dump_float(val.m_data.m_value.number_float);
                 return;
             }
 
@@ -19510,14 +19510,14 @@ class serializer
     }
 
     /*!
-    @brief dump a doubleing-point number
+    @brief dump a floating-point number
 
-    Dump a given doubleing-point number to output stream @a o. Works internally
+    Dump a given floating-point number to output stream @a o. Works internally
     with @a number_buffer.
 
-    @param[in] x  doubleing-point number to dump
+    @param[in] x  floating-point number to dump
     */
-    void dump_double(number_double_t x)
+    void dump_float(number_float_t x)
     {
         // NaN / inf
         if (!std::isfinite(x))
@@ -19526,19 +19526,19 @@ class serializer
             return;
         }
 
-        // If number_double_t is an IEEE-754 single or double precision number,
+        // If number_float_t is an IEEE-754 single or double precision number,
         // use the Grisu2 algorithm to produce short numbers which are
         // guaranteed to round-trip, using strtof and strtod, resp.
         //
         // NB: The test below works if <long double> == <double>.
         static constexpr bool is_ieee_single_or_double
-            = (std::numeric_limits<number_double_t>::is_iec559 && std::numeric_limits<number_double_t>::digits == 24 && std::numeric_limits<number_double_t>::max_exponent == 128) ||
-              (std::numeric_limits<number_double_t>::is_iec559 && std::numeric_limits<number_double_t>::digits == 53 && std::numeric_limits<number_double_t>::max_exponent == 1024);
+            = (std::numeric_limits<number_float_t>::is_iec559 && std::numeric_limits<number_float_t>::digits == 24 && std::numeric_limits<number_float_t>::max_exponent == 128) ||
+              (std::numeric_limits<number_float_t>::is_iec559 && std::numeric_limits<number_float_t>::digits == 53 && std::numeric_limits<number_float_t>::max_exponent == 1024);
 
-        dump_double(x, std::integral_constant<bool, is_ieee_single_or_double>());
+        dump_float(x, std::integral_constant<bool, is_ieee_single_or_double>());
     }
 
-    void dump_double(number_double_t x, std::true_type /*is_ieee_single_or_double*/)
+    void dump_float(number_float_t x, std::true_type /*is_ieee_single_or_double*/)
     {
         auto* begin = number_buffer.data();
         auto* end = ::nlohmann::detail::to_chars(begin, begin + number_buffer.size(), x);
@@ -19546,10 +19546,10 @@ class serializer
         o->write_characters(begin, static_cast<size_t>(end - begin));
     }
 
-    void dump_double(number_double_t x, std::false_type /*is_ieee_single_or_double*/)
+    void dump_float(number_float_t x, std::false_type /*is_ieee_single_or_double*/)
     {
-        // get number of digits for a double -> text -> double round-trip
-        static constexpr auto d = std::numeric_limits<number_double_t>::max_digits10;
+        // get number of digits for a float -> text -> float round-trip
+        static constexpr auto d = std::numeric_limits<number_float_t>::max_digits10;
 
         // the actual conversion
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
@@ -20373,9 +20373,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     /// @sa https://json.nlohmann.me/api/basic_json/number_unsigned_t/
     using number_unsigned_t = NumberUnsignedType;
 
-    /// @brief a type for a number (doubleing-point)
-    /// @sa https://json.nlohmann.me/api/basic_json/number_double_t/
-    using number_double_t = NumberFloatType;
+    /// @brief a type for a number (floating-point)
+    /// @sa https://json.nlohmann.me/api/basic_json/number_float_t/
+    using number_float_t = NumberFloatType;
 
     /// @brief a type for a packed binary type
     /// @sa https://json.nlohmann.me/api/basic_json/binary_t/
@@ -20427,7 +20427,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     boolean   | boolean         | @ref boolean_t
     number    | number_integer  | @ref number_integer_t
     number    | number_unsigned | @ref number_unsigned_t
-    number    | number_double    | @ref number_double_t
+    number    | number_float    | @ref number_float_t
     binary    | binary          | pointer to @ref binary_t
     null      | null            | *no value is stored*
 
@@ -20453,8 +20453,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         number_integer_t number_integer;
         /// number (unsigned integer)
         number_unsigned_t number_unsigned;
-        /// number (doubleing-point)
-        number_double_t number_double;
+        /// number (floating-point)
+        number_float_t number_float;
 
         /// default constructor (for null values)
         json_value() = default;
@@ -20464,8 +20464,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         json_value(number_integer_t v) noexcept : number_integer(v) {}
         /// constructor for numbers (unsigned)
         json_value(number_unsigned_t v) noexcept : number_unsigned(v) {}
-        /// constructor for numbers (doubleing-point)
-        json_value(number_double_t v) noexcept : number_double(v) {}
+        /// constructor for numbers (floating-point)
+        json_value(number_float_t v) noexcept : number_float(v) {}
         /// constructor for empty values of a given type
         json_value(value_t t)
         {
@@ -20513,9 +20513,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                     break;
                 }
 
-                case value_t::number_double:
+                case value_t::number_float:
                 {
-                    number_double = static_cast<number_double_t>(0.0);
+                    number_float = static_cast<number_float_t>(0.0);
                     break;
                 }
 
@@ -20667,7 +20667,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 case value_t::boolean:
                 case value_t::number_integer:
                 case value_t::number_unsigned:
-                case value_t::number_double:
+                case value_t::number_float:
                 case value_t::discarded:
                 default:
                 {
@@ -20745,7 +20745,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -20870,7 +20870,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 #endif
     {
         using other_boolean_t = typename BasicJsonType::boolean_t;
-        using other_number_double_t = typename BasicJsonType::number_double_t;
+        using other_number_float_t = typename BasicJsonType::number_float_t;
         using other_number_integer_t = typename BasicJsonType::number_integer_t;
         using other_number_unsigned_t = typename BasicJsonType::number_unsigned_t;
         using other_string_t = typename BasicJsonType::string_t;
@@ -20883,8 +20883,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             case value_t::boolean:
                 JSONSerializer<other_boolean_t>::to_json(*this, val.template get<other_boolean_t>());
                 break;
-            case value_t::number_double:
-                JSONSerializer<other_number_double_t>::to_json(*this, val.template get<other_number_double_t>());
+            case value_t::number_float:
+                JSONSerializer<other_number_float_t>::to_json(*this, val.template get<other_number_float_t>());
                 break;
             case value_t::number_integer:
                 JSONSerializer<other_number_integer_t>::to_json(*this, val.template get<other_number_integer_t>());
@@ -21069,7 +21069,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         switch (m_data.m_type)
         {
             case value_t::boolean:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::number_integer:
             case value_t::number_unsigned:
             case value_t::string:
@@ -21105,9 +21105,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 break;
             }
 
-            case value_t::number_double:
+            case value_t::number_float:
             {
-                m_data.m_value.number_double = first.m_object->m_data.m_value.number_double;
+                m_data.m_value.number_float = first.m_object->m_data.m_value.number_float;
                 break;
             }
 
@@ -21213,9 +21213,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 break;
             }
 
-            case value_t::number_double:
+            case value_t::number_float:
             {
-                m_data.m_value = other.m_data.m_value.number_double;
+                m_data.m_value = other.m_data.m_value.number_float;
                 break;
             }
 
@@ -21369,7 +21369,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     /// @sa https://json.nlohmann.me/api/basic_json/is_number/
     constexpr bool is_number() const noexcept
     {
-        return is_number_integer() || is_number_double();
+        return is_number_integer() || is_number_float();
     }
 
     /// @brief return whether value is an integer number
@@ -21386,11 +21386,11 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return m_data.m_type == value_t::number_unsigned;
     }
 
-    /// @brief return whether value is a doubleing-point number
-    /// @sa https://json.nlohmann.me/api/basic_json/is_number_double/
-    constexpr bool is_number_double() const noexcept
+    /// @brief return whether value is a floating-point number
+    /// @sa https://json.nlohmann.me/api/basic_json/is_number_float/
+    constexpr bool is_number_float() const noexcept
     {
-        return m_data.m_type == value_t::number_double;
+        return m_data.m_type == value_t::number_float;
     }
 
     /// @brief return whether value is an object
@@ -21525,16 +21525,16 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return is_number_unsigned() ? &m_data.m_value.number_unsigned : nullptr;
     }
 
-    /// get a pointer to the value (doubleing-point number)
-    number_double_t* get_impl_ptr(number_double_t* /*unused*/) noexcept
+    /// get a pointer to the value (floating-point number)
+    number_float_t* get_impl_ptr(number_float_t* /*unused*/) noexcept
     {
-        return is_number_double() ? &m_data.m_value.number_double : nullptr;
+        return is_number_float() ? &m_data.m_value.number_float : nullptr;
     }
 
-    /// get a pointer to the value (doubleing-point number)
-    constexpr const number_double_t* get_impl_ptr(const number_double_t* /*unused*/) const noexcept
+    /// get a pointer to the value (floating-point number)
+    constexpr const number_float_t* get_impl_ptr(const number_float_t* /*unused*/) const noexcept
     {
-        return is_number_double() ? &m_data.m_value.number_double : nullptr;
+        return is_number_float() ? &m_data.m_value.number_float : nullptr;
     }
 
     /// get a pointer to the value (binary)
@@ -21805,7 +21805,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     @tparam PointerType pointer type; must be a pointer to @ref array_t, @ref
     object_t, @ref string_t, @ref boolean_t, @ref number_integer_t,
-    @ref number_unsigned_t, or @ref number_double_t.
+    @ref number_unsigned_t, or @ref number_float_t.
 
     @return pointer to the internally stored JSON value if the requested
     pointer type @a PointerType fits to the JSON value; `nullptr` otherwise
@@ -22480,7 +22480,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         switch (m_data.m_type)
         {
             case value_t::boolean:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::number_integer:
             case value_t::number_unsigned:
             case value_t::string:
@@ -22550,7 +22550,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         switch (m_data.m_type)
         {
             case value_t::boolean:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::number_integer:
             case value_t::number_unsigned:
             case value_t::string:
@@ -22970,7 +22970,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -23009,7 +23009,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -23043,7 +23043,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
@@ -23081,9 +23081,9 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 break;
             }
 
-            case value_t::number_double:
+            case value_t::number_float:
             {
-                m_data.m_value.number_double = 0.0;
+                m_data.m_value.number_float = 0.0;
                 break;
             }
 
@@ -23648,8 +23648,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             case value_t::number_unsigned:                                                               \
                 return (lhs.m_data.m_value.number_unsigned) op (rhs.m_data.m_value.number_unsigned);                   \
                 \
-            case value_t::number_double:                                                                  \
-                return (lhs.m_data.m_value.number_double) op (rhs.m_data.m_value.number_double);                         \
+            case value_t::number_float:                                                                  \
+                return (lhs.m_data.m_value.number_float) op (rhs.m_data.m_value.number_float);                         \
                 \
             case value_t::binary:                                                                        \
                 return (*lhs.m_data.m_value.binary) op (*rhs.m_data.m_value.binary);                                   \
@@ -23659,21 +23659,21 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 return (unordered_result);                                                               \
         }                                                                                                \
     }                                                                                                    \
-    else if (lhs_type == value_t::number_integer && rhs_type == value_t::number_double)                   \
+    else if (lhs_type == value_t::number_integer && rhs_type == value_t::number_float)                   \
     {                                                                                                    \
-        return static_cast<number_double_t>(lhs.m_data.m_value.number_integer) op rhs.m_data.m_value.number_double;      \
+        return static_cast<number_float_t>(lhs.m_data.m_value.number_integer) op rhs.m_data.m_value.number_float;      \
     }                                                                                                    \
-    else if (lhs_type == value_t::number_double && rhs_type == value_t::number_integer)                   \
+    else if (lhs_type == value_t::number_float && rhs_type == value_t::number_integer)                   \
     {                                                                                                    \
-        return lhs.m_data.m_value.number_double op static_cast<number_double_t>(rhs.m_data.m_value.number_integer);      \
+        return lhs.m_data.m_value.number_float op static_cast<number_float_t>(rhs.m_data.m_value.number_integer);      \
     }                                                                                                    \
-    else if (lhs_type == value_t::number_unsigned && rhs_type == value_t::number_double)                  \
+    else if (lhs_type == value_t::number_unsigned && rhs_type == value_t::number_float)                  \
     {                                                                                                    \
-        return static_cast<number_double_t>(lhs.m_data.m_value.number_unsigned) op rhs.m_data.m_value.number_double;     \
+        return static_cast<number_float_t>(lhs.m_data.m_value.number_unsigned) op rhs.m_data.m_value.number_float;     \
     }                                                                                                    \
-    else if (lhs_type == value_t::number_double && rhs_type == value_t::number_unsigned)                  \
+    else if (lhs_type == value_t::number_float && rhs_type == value_t::number_unsigned)                  \
     {                                                                                                    \
-        return lhs.m_data.m_value.number_double op static_cast<number_double_t>(rhs.m_data.m_value.number_unsigned);     \
+        return lhs.m_data.m_value.number_float op static_cast<number_float_t>(rhs.m_data.m_value.number_unsigned);     \
     }                                                                                                    \
     else if (lhs_type == value_t::number_unsigned && rhs_type == value_t::number_integer)                \
     {                                                                                                    \
@@ -23698,8 +23698,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     // an operation is computed as an odd number of inverses of others
     static bool compares_unordered(const_reference lhs, const_reference rhs, bool inverse = false) noexcept
     {
-        if ((lhs.is_number_double() && std::isnan(lhs.m_data.m_value.number_double) && rhs.is_number())
-                || (rhs.is_number_double() && std::isnan(rhs.m_data.m_value.number_double) && lhs.is_number()))
+        if ((lhs.is_number_float() && std::isnan(lhs.m_data.m_value.number_float) && rhs.is_number())
+                || (rhs.is_number_float() && std::isnan(rhs.m_data.m_value.number_float) && lhs.is_number()))
         {
             return true;
         }
@@ -23725,7 +23725,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdouble-equal"
+#pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif
         const_reference lhs = *this;
         JSON_IMPLEMENT_OPERATOR( ==, true, false, false)
@@ -23829,7 +23829,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     {
 #ifdef __GNUC__
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdouble-equal"
+#pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif
         JSON_IMPLEMENT_OPERATOR( ==, true, false, false)
 #ifdef __GNUC__
@@ -24217,7 +24217,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 return "discarded";
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             default:
                 return "number";
         }
@@ -24854,7 +24854,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 case value_t::boolean: // LCOV_EXCL_LINE
                 case value_t::number_integer: // LCOV_EXCL_LINE
                 case value_t::number_unsigned: // LCOV_EXCL_LINE
-                case value_t::number_double: // LCOV_EXCL_LINE
+                case value_t::number_float: // LCOV_EXCL_LINE
                 case value_t::binary: // LCOV_EXCL_LINE
                 case value_t::discarded: // LCOV_EXCL_LINE
                 default:            // LCOV_EXCL_LINE
@@ -25154,7 +25154,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             case value_t::boolean:
             case value_t::number_integer:
             case value_t::number_unsigned:
-            case value_t::number_double:
+            case value_t::number_float:
             case value_t::binary:
             case value_t::discarded:
             default:
