@@ -2,4 +2,4 @@
 third_party/*.hpp linguist-vendored
 
 # 强制让 third_party/ 目录下的所有 .py 文件计入统计
-third_party/midi_scribe_tool/*.py linguist-vendored=false
+third_party/tools/*/*.py linguist-vendored=false
