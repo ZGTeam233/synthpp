@@ -47,7 +47,7 @@ class MusicXMLMerger:
         try:
             score = converter.parse(file_path)
             self._pages.append(score)
-            print(f"✅ 成功加载: {os.path.basename(file_path)} (声部数: {len(score.parts)})")
+            print(f"成功加载: {os.path.basename(file_path)} (声部数: {len(score.parts)})")
         except Exception as e:
             raise RuntimeError(f"解析文件失败 {file_path}: {str(e)}")
         return self
@@ -86,11 +86,11 @@ class MusicXMLMerger:
 
             # 将合并好的声部加入总谱
             self._merged_score.append(new_part)
-            print(f"✅ 声部 {base_idx+1} 合并完成 (接入了第 {target_idx+1} 页的声部)")
+            print(f"声部 {base_idx+1} 合并完成 (接入了第 {target_idx+1} 页的声部)")
 
         # 写入文件
         self._merged_score.write('musicxml', fp=output_path)
-        print(f"🎵 总谱合并完成！保存至: {output_path}")
+        print(f"总谱合并完成！保存至: {output_path}")
 
     def get_result(self) -> Optional[stream.Score]:
         """获取合并后的 stream 对象，便于后续在代码中继续处理"""
@@ -105,6 +105,6 @@ class AdvancedScoreMerger(MusicXMLMerger):
         未来的扩展点：如果AI识别时声部顺序乱了，可以根据乐器名称（如 'Piano'、'Violin'）来匹配
         这里只是占位，展示OOP的继承优势
         """
-        print("🔄 使用高级乐器名称匹配策略...")
+        print("使用高级乐器名称匹配策略...")
         # 具体实现略，可根据实际需求补充
         pass
