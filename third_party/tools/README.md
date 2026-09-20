@@ -15,7 +15,7 @@ pip install pretty_midi mido -i https://pypi.tuna.tsinghua.edu.cn/simple
 ## 用法
 
 ```bash
-python scribe_main.py [input.mid] [output.json] [options]
+python midi_scribe.py [input.mid] [output.json] [options]
 ```
 
 ### 参数
@@ -46,13 +46,13 @@ python scribe_main.py [input.mid] [output.json] [options]
 
 ```bash
 # 基本用法
-python scribe_main.py my_song.mid
+python midi_scribe.py my_song.mid
 
 # 指定输出路径
-python scribe_main.py my_song.mid output.json
+python midi_scribe.py my_song.mid output.json
 
 # 不包含音符名称（节省空间）
-python scribe_main.py my_song.mid --no-name
+python midi_scribe.py my_song.mid --no-name
 ```
 
 所有音符按 `start_ms` 排序，和弦/重叠音符会同时出现（同一时刻多个条目）。

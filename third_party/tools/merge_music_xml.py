@@ -108,3 +108,16 @@ class AdvancedScoreMerger(MusicXMLMerger):
         print("使用高级乐器名称匹配策略...")
         # 具体实现略，可根据实际需求补充
         pass
+
+def main():
+    # 使用链式调用，清晰优雅
+    try:
+        merger = MusicXMLMerger()
+        merger.add_page("page1.mxl") \
+            .add_page("page2.mxl") \
+            .execute("final_score.mxl")
+    except Exception as e:
+        print(f"合并过程中出现错误: {e}")
+
+if __name__ == "__main__":
+    main()

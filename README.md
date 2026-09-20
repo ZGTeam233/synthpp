@@ -2,7 +2,7 @@
 通过 C++ 代码演奏, ~~?!B站音乐区的新乐器?!~~
 
 **注意**: 本项目含有一个子项目 midi_scribe_tool, 
-[点此访问其 README](third_party/tools/midi_scribe)
+[点此访问其 README](third_party/tools)
 
 ## 安装依赖
 
